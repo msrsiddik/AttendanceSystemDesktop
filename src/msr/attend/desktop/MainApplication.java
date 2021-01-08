@@ -15,13 +15,15 @@ import java.net.URL;
 
 public class MainApplication extends Application {
     public static DatabaseReference REF;
+    public static DatabaseReference REFERENCE;
 
     public static void main(String[] args) throws IOException {
-        QRScanner qrScanner = new QRScanner();
-        qrScanner.initWebcam();
+//        QRScanner qrScanner = new QRScanner();
+//        qrScanner.initWebcam();
 
         FirebaseService service = new FirebaseService();
         REF = service.getDb().getReference("AttendInfoInUniversity");
+        REFERENCE = service.getDb().getReference("Students");
 
         Application.launch(args);
     }
@@ -35,12 +37,9 @@ public class MainApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent windowEvent) {
-                Platform.exit();
-                System.exit(0);
-            }
+        primaryStage.setOnCloseRequest(windowEvent -> {
+            Platform.exit();
+            System.exit(0);
         });
     }
 }

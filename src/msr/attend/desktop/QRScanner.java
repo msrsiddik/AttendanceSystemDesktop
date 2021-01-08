@@ -6,6 +6,12 @@ import com.github.sarxos.webcam.WebcamResolution;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Executor;
@@ -17,11 +23,16 @@ public class QRScanner  implements Runnable, ThreadFactory {
     private Executor executor = Executors.newSingleThreadExecutor(this);
     private String oldText = "";
 
-    public void initWebcam() {
+    private ObjectProperty<Image> imageProperty = new SimpleObjectProperty<Image>();
+    private ImageView imageView;
+
+    public void initWebcam(ImageView imageView) {
         Dimension size = WebcamResolution.QVGA.getSize();
         webcam = Webcam.getWebcams().get(0); //0 is default webcam
         new WebcamPanel(webcam);
         webcam.setViewSize(size);
+        this.imageView = imageView;
+
         executor.execute(this);
     }
 
@@ -43,6 +54,9 @@ public class QRScanner  implements Runnable, ThreadFactory {
                 }
             }
 
+            final Image mainiamge = SwingFXUtils.toFXImage(image, null);
+            imageProperty.set(mainiamge);
+
             LuminanceSource source = new BufferedImageLuminanceSource(image);
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
@@ -61,7 +75,7 @@ public class QRScanner  implements Runnable, ThreadFactory {
                 } else {
 //                    System.out.println("Already Scan");
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(2000);
                         oldText="";
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -76,6 +90,7 @@ public class QRScanner  implements Runnable, ThreadFactory {
     public Thread newThread(Runnable r) {
         Thread t = new Thread(r, "My Thread");
         t.setDaemon(true);
+        imageView.imageProperty().bind(imageProperty);
         return t;
     }
 

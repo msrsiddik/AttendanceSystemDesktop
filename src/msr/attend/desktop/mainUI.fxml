@@ -2,11 +2,13 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="msr.attend.desktop.MainUIController">
    <children>
       <TextArea fx:id="logTextArea" layoutX="14.0" layoutY="186.0" prefHeight="200.0" prefWidth="573.0" />
       <Label fx:id="scanMsgLbl" layoutX="472.0" layoutY="14.0" prefHeight="17.0" prefWidth="118.0" />
+      <ImageView fx:id="camera" fitHeight="150.0" fitWidth="200.0" layoutX="29.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true" />
    </children>
 </AnchorPane>

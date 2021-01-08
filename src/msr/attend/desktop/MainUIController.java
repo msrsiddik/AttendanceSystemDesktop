@@ -3,11 +3,12 @@ package msr.attend.desktop;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import msr.attend.desktop.model.AttendModel;
+import msr.attend.desktop.model.StudentModel;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static msr.attend.desktop.MainApplication.REF;
+import static msr.attend.desktop.MainApplication.REFERENCE;
 
 public class MainUIController implements QRScanner.VirtualCardScanData {
 
@@ -27,6 +29,9 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
     @FXML
     private Label scanMsgLbl;
 
+    @FXML
+    private ImageView camera;
+
     static String msg = "Machine Ready";
 
     @FXML
@@ -37,6 +42,9 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
         }
         readLogFile();
         scanMsgLbl.setText(msg);
+
+        QRScanner qrScanner = new QRScanner();
+        qrScanner.initWebcam(camera);
 
     }
 
@@ -78,7 +86,28 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
     }
 
     private void insertAttendData(String s) {
-        AttendModel model = new AttendModel(s, "Siddik", "42", ldt);
+        AttendModel model = new AttendModel();
+
+            REFERENCE.orderByChild("id").equalTo(s).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        StudentModel studentModel = ds.getValue(StudentModel.class);
+                        if (studentModel.getId().equals(s)) {
+                            model.setUID(studentModel.getId());
+                            model.setName(studentModel.getName());
+                            model.setBatch(studentModel.getBatch());
+                            model.setDateTime(ldt);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
 
         String date = sdf.format(new Date(ldt));
 
@@ -89,7 +118,7 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
                         .setValue(model, (databaseError, databaseReference) -> {
                             System.out.println("success");
                             REF.child("CurrentStatus").child(date).child(s).setValueAsync("in");
-                            logWrite(date, s,Calendar.getInstance().getTime(),"in");
+                            logWrite(date, model.getName()+" | "+model.getBatch(),Calendar.getInstance().getTime(),"in");
                         });
             }
 
@@ -99,7 +128,7 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
                         .setValue(model, (databaseError, databaseReference) -> {
                             System.out.println("success");
                             REF.child("CurrentStatus").child(date).child(s).setValueAsync("out");
-                            logWrite(date, s,Calendar.getInstance().getTime(),"out");
+                            logWrite(date, model.getName()+" | "+model.getBatch(),Calendar.getInstance().getTime(),"out");
                         });
             }
         });
