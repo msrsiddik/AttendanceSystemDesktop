@@ -22,9 +22,9 @@ public class MainApplication extends Application {
 //        qrScanner.initWebcam();
 
         FirebaseService service = new FirebaseService();
+//        service.getDb().setPersistenceEnabled(true);
         REF = service.getDb().getReference("AttendInfoInUniversity");
         REFERENCE = service.getDb().getReference("Students");
-
         Application.launch(args);
     }
 

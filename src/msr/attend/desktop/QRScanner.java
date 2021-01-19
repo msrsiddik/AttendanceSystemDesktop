@@ -28,6 +28,7 @@ public class QRScanner  implements Runnable, ThreadFactory {
 
     public void initWebcam(ImageView imageView) {
         Dimension size = WebcamResolution.QVGA.getSize();
+        System.out.println(Webcam.getWebcams());
         webcam = Webcam.getWebcams().get(0); //0 is default webcam
         new WebcamPanel(webcam);
         webcam.setViewSize(size);
