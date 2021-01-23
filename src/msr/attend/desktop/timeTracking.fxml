@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="msr.attend.desktop.TimeTracking"
+            prefHeight="500.0" prefWidth="700.0">
+    <children>
+        <TableView fx:id="tableView" layoutX="14.0" layoutY="58.0" prefHeight="430.0" prefWidth="673.0">
+            <columns>
+                <TableColumn fx:id="departCol" prefWidth="75.0" text="Depart"/>
+                <TableColumn fx:id="batchCol" prefWidth="75.0" text="Batch"/>
+                <TableColumn fx:id="rollCol" prefWidth="75.0" text="Roll"/>
+                <TableColumn fx:id="nameCol" prefWidth="223.0" text="Name"/>
+                <TableColumn fx:id="stayTimeCol" minWidth="5.0" prefWidth="93.0" text="Stay Time"/>
+            </columns>
+        </TableView>
+        <ChoiceBox fx:id="dateChoiceBox" layoutX="256.0" layoutY="14.0" prefHeight="25.0" prefWidth="173.0"/>
+    </children>
+</AnchorPane>

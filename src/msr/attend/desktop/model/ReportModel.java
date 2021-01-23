@@ -1,31 +1,20 @@
 package msr.attend.desktop.model;
 
-public class AttendModel {
-    private String UID;
+public class ReportModel {
     private String roll;
     private String name;
     private String batch;
     private String depart;
-    private long dateTime;
+    private String dateTime;
+    private String status;
 
-    public AttendModel() {
-    }
-
-    public AttendModel(String UID, String roll, String name, String batch, String depart, long dateTime) {
-        this.UID = UID;
+    public ReportModel(String roll, String name, String batch, String depart, String dateTime, String status) {
         this.roll = roll;
         this.name = name;
         this.batch = batch;
         this.depart = depart;
         this.dateTime = dateTime;
-    }
-
-    public String getUID() {
-        return UID;
-    }
-
-    public void setUID(String UID) {
-        this.UID = UID;
+        this.status = status;
     }
 
     public String getRoll() {
@@ -60,11 +49,20 @@ public class AttendModel {
         this.depart = depart;
     }
 
-    public long getDateTime() {
+    public String getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(long dateTime) {
+    public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }

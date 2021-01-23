@@ -18,8 +18,6 @@ public class MainApplication extends Application {
     public static DatabaseReference REFERENCE;
 
     public static void main(String[] args) throws IOException {
-//        QRScanner qrScanner = new QRScanner();
-//        qrScanner.initWebcam();
 
         FirebaseService service = new FirebaseService();
 //        service.getDb().setPersistenceEnabled(true);
@@ -33,6 +31,7 @@ public class MainApplication extends Application {
         FXMLLoader loader = new FXMLLoader();
         URL url = this.getClass().getClassLoader().getResource("msr/attend/desktop/mainUI.fxml");
         Parent root = loader.load(url);
+        primaryStage.setResizable(false);
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -26,10 +26,9 @@ public class QRScanner  implements Runnable, ThreadFactory {
     private ObjectProperty<Image> imageProperty = new SimpleObjectProperty<Image>();
     private ImageView imageView;
 
-    public void initWebcam(ImageView imageView) {
+    public void initWebcam(ImageView imageView, int a) {
         Dimension size = WebcamResolution.QVGA.getSize();
-        System.out.println(Webcam.getWebcams());
-        webcam = Webcam.getWebcams().get(0); //0 is default webcam
+        webcam = Webcam.getWebcams().get(a); //0 is default webcam
         new WebcamPanel(webcam);
         webcam.setViewSize(size);
         this.imageView = imageView;
@@ -68,7 +67,7 @@ public class QRScanner  implements Runnable, ThreadFactory {
             }
 
             if (result != null) {
-                if (!result.getText().equals(oldText)){
+                if (!result.getText().equals(oldText)) {
                     oldText = result.getText();
 //                    System.out.println(result.getText());
                     VirtualCardScanData data = new MainUIController();
@@ -77,7 +76,7 @@ public class QRScanner  implements Runnable, ThreadFactory {
 //                    System.out.println("Already Scan");
                     try {
                         Thread.sleep(2000);
-                        oldText="";
+                        oldText = "";
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

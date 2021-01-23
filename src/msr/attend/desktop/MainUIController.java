@@ -3,10 +3,17 @@ package msr.attend.desktop;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import msr.attend.desktop.model.AttendModel;
 import msr.attend.desktop.model.StudentModel;
 
@@ -22,6 +29,7 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
 
     private long ldt = Calendar.getInstance().getTime().getTime();
     private DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private DateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
 
     @FXML
     private TextArea logTextArea;
@@ -44,8 +52,28 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
         scanMsgLbl.setText(msg);
 
         QRScanner qrScanner = new QRScanner();
-        qrScanner.initWebcam(camera);
+        qrScanner.initWebcam(camera, 0);
 
+    }
+
+    @FXML
+    void detailsWindow(ActionEvent event) {
+        Parent root;
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("timeTracking.fxml"));
+            root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Stay Time Details");
+            stage.setAlwaysOnTop(true);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e){
+            System.out.println("Not Load Second Window");
+            System.out.println(e.getMessage());
+        }
     }
 
     private void readLogFile() {
@@ -95,8 +123,10 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
                         StudentModel studentModel = ds.getValue(StudentModel.class);
                         if (studentModel.getId().equals(s)) {
                             model.setUID(studentModel.getId());
+                            model.setRoll(studentModel.getRoll());
                             model.setName(studentModel.getName());
                             model.setBatch(studentModel.getBatch());
+                            model.setDepart(studentModel.getDepartment());
                             model.setDateTime(ldt);
                         }
                     }
@@ -118,7 +148,7 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
                         .setValue(model, (databaseError, databaseReference) -> {
                             System.out.println("success");
                             REF.child("CurrentStatus").child(date).child(s).setValueAsync("in");
-                            logWrite(date, model.getName()+" | "+model.getBatch(),Calendar.getInstance().getTime(),"in");
+                            logWrite(date, model.getRoll()+" - "+model.getName()+" - "+model.getBatch()+" - "+model.getDepart(),timeFormat.format(Calendar.getInstance().getTime()),"in");
                         });
             }
 
@@ -128,17 +158,17 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
                         .setValue(model, (databaseError, databaseReference) -> {
                             System.out.println("success");
                             REF.child("CurrentStatus").child(date).child(s).setValueAsync("out");
-                            logWrite(date, model.getName()+" | "+model.getBatch(),Calendar.getInstance().getTime(),"out");
+                            logWrite(date, model.getRoll()+" - "+model.getName()+" - "+model.getBatch()+" - "+model.getDepart(),timeFormat.format(Calendar.getInstance().getTime()),"out");
                         });
             }
         });
 
     }
 
-    private void logWrite(String fileName, String s, Date time, String status) {
+    private void logWrite(String fileName, String s, String time, String status) {
         try{
             FileWriter writer = new FileWriter(fileName+".txt",true);
-            writer.write(s+" | "+time+" | "+status+"\n");
+            writer.write(s+" - "+time+" - "+status+"\n");
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
