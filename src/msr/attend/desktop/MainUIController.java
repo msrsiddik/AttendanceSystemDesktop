@@ -64,7 +64,6 @@ public class MainUIController implements QRScanner.VirtualCardScanData {
             root = fxmlLoader.load();
             Stage stage = new Stage();
             stage.setTitle("Stay Time Details");
-            stage.setAlwaysOnTop(true);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.initStyle(StageStyle.DECORATED);

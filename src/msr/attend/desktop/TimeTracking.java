@@ -2,11 +2,15 @@ package msr.attend.desktop;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 import msr.attend.desktop.model.ReportModel;
 import msr.attend.desktop.model.StayTimePerStudent;
 import msr.attend.desktop.model.Student;
@@ -25,25 +29,29 @@ public class TimeTracking {
     private TableView<StayTimePerStudent> tableView;
 
     @FXML
-    private TableColumn<String, ?> departCol;
+    private TableColumn<StayTimePerStudent, String> departCol;
 
     @FXML
-    private TableColumn<String, ?> batchCol;
+    private TableColumn<StayTimePerStudent, String> batchCol;
 
     @FXML
-    private TableColumn<String, ?> rollCol;
+    private TableColumn<StayTimePerStudent, String> rollCol;
 
     @FXML
-    private TableColumn<String, ?> nameCol;
+    private TableColumn<StayTimePerStudent, String> nameCol;
 
     @FXML
-    private TableColumn<String, ?> stayTimeCol;
+    private TableColumn<StayTimePerStudent, String> stayTimeCol;
 
+    @FXML
+    private TableColumn<StayTimePerStudent, Void> detailsBtn;
 
     @FXML
     private ChoiceBox<String> dateChoiceBox;
 
     List<StayTimePerStudent> stayTimePerStudents = new ArrayList<>();
+
+    Deque<ReportModel> allReports = new ArrayDeque<>();
 
     @FXML
     void initialize() {
@@ -56,22 +64,20 @@ public class TimeTracking {
             }
         }
 
+        Collections.reverseOrder();
         dateChoiceBox.getItems().addAll(list);
         dateChoiceBox.getSelectionModel().selectLast();
 
-        dateChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                try {
-                    stayTimePerStudents.clear();
-                    tableView.getItems().clear();
-                    tableDataSetUp(dateChoiceBox.getSelectionModel().getSelectedItem());
-                    tableView.getItems().addAll(stayTimePerStudents);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        dateChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, t1) -> {
+            try {
+                stayTimePerStudents.clear();
+                tableView.getItems().clear();
+                tableDataSetUp(list.get((int)t1));
+                tableView.getItems().addAll(stayTimePerStudents);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
 
@@ -90,6 +96,52 @@ public class TimeTracking {
         rollCol.setCellValueFactory(new PropertyValueFactory<>("roll"));
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         stayTimeCol.setCellValueFactory(new PropertyValueFactory<>("totalTime"));
+
+        detailsBtn.setCellFactory(stayTimePerStudentVoidTableColumn -> {
+            return new TableCell<>(){
+                private final Button btn = new Button("Details");
+                {
+                    btn.setOnAction(actionEvent -> {
+                        StayTimePerStudent selectStudent = getTableView().getItems().get(getIndex());
+                        Deque<ReportModel> selectStudentAllReport = new ArrayDeque<>();
+                        allReports.forEach(reportModel -> {
+                            if (reportModel.getName().equals(selectStudent.getName())
+                                    && reportModel.getRoll().equals(selectStudent.getRoll())
+                                    && reportModel.getBatch().equals(selectStudent.getBatch())
+                                    && reportModel.getDepart().equals(selectStudent.getDepart())){
+                                selectStudentAllReport.add(reportModel);
+                            }
+                        });
+
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("detailsView.fxml"));
+                            Parent parent = loader.load();
+                            Stage stage = new Stage();
+                            stage.setScene(new Scene(parent));
+                            stage.setResizable(false);
+                            stage.setAlwaysOnTop(true);
+                            DetailsView detailsView = loader.getController();
+                            detailsView.setUpDataTable(selectStudentAllReport);
+                            stage.setTitle(selectStudent.getName());
+                            stage.show();
+                        } catch (IOException e){
+
+                        }
+
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty){
+                        setGraphic(null);
+                    } else {
+                        setGraphic(btn);
+                    }
+                }
+            };
+        });
     }
 
     private void tableDataSetUp(String dateFile) throws IOException, InterruptedException {
@@ -107,6 +159,8 @@ public class TimeTracking {
                 reportModels.add(model);
             }
         }
+
+        allReports.addAll(reportModels);
 
         Map<Student, Deque<String>> studentInTimeMap = new HashMap<>();
         Map<Student, Deque<String>> studentOutTimeMap = new HashMap<>();
